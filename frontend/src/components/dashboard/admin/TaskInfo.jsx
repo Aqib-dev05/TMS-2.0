@@ -31,24 +31,24 @@ function TaskInfo() {
               : "No employees found yet."}
           </p>
         ) : (
-          <table className="min-w-full divide-y divide-white/10 text-left">
-            <thead className="text-xs uppercase tracking-[0.3em] text-white/50">
-              <tr>
-                <th className="px-4 py-4 font-semibold">Employee</th>
-                <th className="px-4 py-4 font-semibold text-center">New</th>
-                <th className="px-4 py-4 font-semibold text-center">Active</th>
+        <table className="min-w-full divide-y divide-white/10 text-left">
+          <thead className="text-xs uppercase tracking-[0.3em] text-white/50">
+            <tr>
+              <th className="px-4 py-4 font-semibold">Employee</th>
+              <th className="px-4 py-4 font-semibold text-center">New</th>
+              <th className="px-4 py-4 font-semibold text-center">Active</th>
                 <th className="px-4 py-4 font-semibold text-center">
                   Completed
                 </th>
-                <th className="px-4 py-4 font-semibold text-center">Failed</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5 text-sm">
-              {teamSnapshot.map((member) => (
-                <tr
+              <th className="px-4 py-4 font-semibold text-center">Failed</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/5 text-sm">
+            {teamSnapshot.map((member) => (
+              <tr
                   key={member.userId}
                   className="transition-colors hover:bg-white/5"
-                >
+              >
                   <td className="px-4 py-4 font-semibold">
                     <div className="flex flex-col">
                       <span>{member.name}</span>
@@ -57,22 +57,22 @@ function TaskInfo() {
                       </span>
                     </div>
                   </td>
-                  <td className="px-4 py-4 text-center text-emerald-300">
-                    {member.newTask}
-                  </td>
-                  <td className="px-4 py-4 text-center text-amber-300">
-                    {member.active}
-                  </td>
-                  <td className="px-4 py-4 text-center text-sky-300">
-                    {member.completed}
-                  </td>
-                  <td className="px-4 py-4 text-center text-rose-300">
-                    {member.failed}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                <td className="px-4 py-4 text-center text-emerald-300">
+                  {member.newTask}
+                </td>
+                <td className="px-4 py-4 text-center text-amber-300">
+                  {member.active}
+                </td>
+                <td className="px-4 py-4 text-center text-sky-300">
+                  {member.completed}
+                </td>
+                <td className="px-4 py-4 text-center text-rose-300">
+                  {member.failed}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
         )}
       </div>
     </section>

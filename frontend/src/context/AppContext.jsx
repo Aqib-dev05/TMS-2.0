@@ -28,6 +28,7 @@ export const AppProvider = ({ children }) => {
   const [teamLoading, setTeamLoading] = useState(false);
   const [creatingTask, setCreatingTask] = useState(false);
   const [updatingTaskId, setUpdatingTaskId] = useState("");
+  const [dbStatus, setDbStatus] = useState(null);
 
   const persistAuth = useCallback((payload) => {
     if (!payload) {
@@ -149,6 +150,9 @@ export const AppProvider = ({ children }) => {
     if (typeof updates.password === "string" && updates.password.trim()) {
       payload.password = updates.password;
     }
+    if (typeof updates.secretKey === "string" && updates.secretKey.trim()) {
+      payload.secretKey = updates.secretKey.trim();
+    }
 
     if (!Object.keys(payload).length) {
       throw new Error("No changes to update");
@@ -158,6 +162,60 @@ export const AppProvider = ({ children }) => {
     persistAuth({ user: data.user, token });
     return data.user;
   };
+
+  const registerUser = async (registrationData) => {
+    setAuthLoading(true);
+    setAuthError("");
+    try {
+      const { data } = await api.post("/auth/register", registrationData);
+      persistAuth(data);
+      if (data.user.role === "employee") {
+        await fetchTasks();
+      } else {
+        await fetchTeamSnapshot();
+      }
+      return data;
+    } catch (error) {
+      const message =
+        error?.response?.data?.message || "Registration failed.";
+      setAuthError(message);
+      throw error;
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const resetPassword = async (email, newPassword, secretKey) => {
+    setAuthLoading(true);
+    setAuthError("");
+    try {
+      const { data } = await api.post("/auth/reset-password", {
+        email,
+        newPassword,
+        secretKey,
+      });
+      setAuthError("");
+      return data;
+    } catch (error) {
+      const message =
+        error?.response?.data?.message || "Password reset failed.";
+      setAuthError(message);
+      throw error;
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const checkDatabaseStatus = useCallback(async () => {
+    try {
+      const { data } = await api.get("/auth/status");
+      setDbStatus(data);
+      return data;
+    } catch (error) {
+      console.error("Failed to check database status", error);
+      return null;
+    }
+  }, []);
 
   const updateTaskStatus = async (taskId, status) => {
     if (!taskId || !status) return;
@@ -176,7 +234,10 @@ export const AppProvider = ({ children }) => {
     if (token && !user) {
       fetchProfile();
     }
-  }, [fetchProfile, token, user]);
+    if (!token && !user) {
+      checkDatabaseStatus();
+    }
+  }, [fetchProfile, token, user, checkDatabaseStatus]);
 
   useEffect(() => {
     if (!token || !user?.role) return;
@@ -223,6 +284,10 @@ export const AppProvider = ({ children }) => {
         createTask,
         updateTaskStatus,
         updateProfile,
+        registerUser,
+        resetPassword,
+        checkDatabaseStatus,
+        dbStatus,
       }}
     >
       {children}

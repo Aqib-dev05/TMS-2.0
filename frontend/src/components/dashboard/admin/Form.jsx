@@ -114,7 +114,7 @@ function Form() {
                 Select employee
               </option>
               {employees.map((employee) => (
-                <option key={employee.id} value={employee.id}>
+                <option className="bg-black border-none" key={employee.id} value={employee.id}>
                   {employee.label}
                 </option>
               ))}

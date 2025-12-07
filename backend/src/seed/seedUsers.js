@@ -154,11 +154,14 @@ const seedUsers = async () => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const defaultSecretKey = "secret123";
+
     const usersToInsert = rawUsers.map((user) => ({
       name: user.name,
       email: user.email,
       role: user.role,
       password: hashedPassword,
+      secretKey: defaultSecretKey,
       tasks: sampleTasks[user.email] || [],
     }));
 

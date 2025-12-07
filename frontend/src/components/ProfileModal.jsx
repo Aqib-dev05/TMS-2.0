@@ -11,6 +11,7 @@ function ProfileModal({ isOpen, onClose }) {
     name: user?.name ?? "",
     email: user?.email ?? "",
     password: "",
+    secretKey: "",
   });
   const [status, setStatus] = useState({ type: "", message: "" });
   const [loading, setLoading] = useState(false);
@@ -21,6 +22,7 @@ function ProfileModal({ isOpen, onClose }) {
         name: user?.name ?? "",
         email: user?.email ?? "",
         password: "",
+        secretKey: "",
       });
       setStatus({ type: "", message: "" });
     }
@@ -30,7 +32,8 @@ function ProfileModal({ isOpen, onClose }) {
     const nameChanged = formState.name.trim() !== (user?.name ?? "");
     const emailChanged = formState.email.trim() !== (user?.email ?? "");
     const passwordChanged = Boolean(formState.password);
-    return nameChanged || emailChanged || passwordChanged;
+    const secretKeyChanged = Boolean(formState.secretKey);
+    return nameChanged || emailChanged || passwordChanged || secretKeyChanged;
   }, [formState, user]);
 
   const handleChange = (e) => {
@@ -52,7 +55,7 @@ function ProfileModal({ isOpen, onClose }) {
     try {
       await updateProfile(formState);
       setStatus({ type: "success", message: "Profile updated successfully." });
-      setFormState((prev) => ({ ...prev, password: "" }));
+      setFormState((prev) => ({ ...prev, password: "", secretKey: "" }));
       setTimeout(() => {
         onClose();
       }, 1500);
@@ -112,7 +115,7 @@ function ProfileModal({ isOpen, onClose }) {
             </p>
             <h2 className="text-2xl font-semibold text-white">Your identity</h2>
             <p className="mt-1 text-sm text-white/60">
-              Update your display name, login email, or password.
+              Update your display name, login email, password, or secret key.
             </p>
           </div>
           <span className="rounded-full border border-white/15 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-white/70">
@@ -144,17 +147,32 @@ function ProfileModal({ isOpen, onClose }) {
               required
             />
           </label>
-          <label className="flex flex-col gap-2 text-sm font-semibold tracking-tight text-white/70 sm:col-span-2">
+          <label className="flex flex-col gap-2 text-sm font-semibold tracking-tight text-white/70 sm:col-span-1">
             New password
             <input
               className={fieldStyles}
               name="password"
               type="password"
-              placeholder="Leave blank to keep current password"
+              placeholder="Leave blank to keep current"
               value={formState.password}
               onChange={handleChange}
               autoComplete="new-password"
             />
+          </label>
+          <label className="flex flex-col gap-2 text-sm font-semibold tracking-tight text-white/70 sm:col-span-1">
+            Secret key (for password reset)
+            <input
+              className={fieldStyles}
+              name="secretKey"
+              type="text"
+              placeholder="Set or update secret key"
+              value={formState.secretKey}
+              onChange={handleChange}
+              minLength={3}
+            />
+            <span className="text-xs text-white/50 mt-1">
+              Required for password reset (min 3 characters)
+            </span>
           </label>
           {status.message ? (
             <p className={`${alertColor} text-sm font-medium sm:col-span-2`}>

@@ -88,7 +88,7 @@ node src/seed/seedUsers.js
 ```
 
 This creates:
-- **Admin**: `admin@example.com` / `222`
+- **Admin**: `admin@example.com` / `123`
 - **Employees**: `e1@example.com` through `e5@example.com` / `123` (each with sample tasks)
 
 ## 📡 API Endpoints

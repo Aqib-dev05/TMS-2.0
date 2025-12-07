@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import Button from "./Button";
 import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
+import RegisterModal from "./RegisterModal";
+import ResetPasswordModal from "./ResetPasswordModal";
 
 function Login() {
   const {
@@ -10,7 +12,10 @@ function Login() {
     authError,
     authLoading,
     formData,
+    dbStatus,
   } = useContext(AppContext);
+  const [showRegister, setShowRegister] = useState(false);
+  const [showReset, setShowReset] = useState(false);
 
   const inputStyles =
     "w-full rounded-2xl border border-white/15 bg-white/5 px-5 py-4 text-base text-white placeholder:text-white/60 focus:border-emerald-300 focus:bg-white/10 focus:outline-none transition";
@@ -71,10 +76,56 @@ function Login() {
               disabled={authLoading}
               text={authLoading ? "Authenticating..." : "Enter workspace"}
             />
+
+            <div className="mt-6 flex flex-col gap-3 text-center">
+              <button
+                type="button"
+                onClick={() => setShowReset(true)}
+                className="text-sm text-white/70 hover:text-emerald-300 transition"
+              >
+                Forgot password?
+              </button>
+
+              {dbStatus?.isEmpty ? (
+                <div className="pt-3 border-t border-white/10">
+                  <p className="text-sm text-white/60 mb-3">
+                    No users found. Create the first admin account:
+                  </p>
+                  <Button
+                    type="button"
+                    varient="ghost"
+                    onclick={() => setShowRegister(true)}
+                    text="Register as Admin"
+                    classname="w-full py-3"
+                  />
+                </div>
+              ) : (
+                <div className="pt-3 border-t border-white/10">
+                  <p className="text-sm text-white/60 mb-3">
+                    Don't have an account?
+                  </p>
+                  <Button
+                    type="button"
+                    varient="ghost"
+                    onclick={() => setShowRegister(true)}
+                    text="Register"
+                    classname="w-full py-3"
+                  />
+                </div>
+              )}
+            </div>
           </form>
         </div>
-
       </div>
+
+      <RegisterModal
+        isOpen={showRegister}
+        onClose={() => setShowRegister(false)}
+      />
+      <ResetPasswordModal
+        isOpen={showReset}
+        onClose={() => setShowReset(false)}
+      />
     </div>
   );
 }

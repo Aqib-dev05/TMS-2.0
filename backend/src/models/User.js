@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "employee"],
       default: "employee",
     },
+    secretKey: {
+      type: String,
+      trim: true,
+    },
     tasks: [taskSchema],
   },
   { timestamps: true }
