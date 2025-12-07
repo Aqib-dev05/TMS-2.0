@@ -1,0 +1,286 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R 9 0 R 11 0 R 13 0 R] /Count 5 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Length 2164 >>
+stream
+BT
+/F1 11 Tf
+14 TL
+50 780 Td
+(Task Management System  Software Requirements Specification \(SRS\)) Tj
+T* ( ) Tj
+T* (1. Product Overview) Tj
+T* (The Task Management System \(TMS\) is a MERN-stack application that provides a lightweight) Tj
+T* (workflow for administrators to assign tasks and for employees to manage them. The React) Tj
+T* (frontend communicates with an Express/MongoDB backend through a JSON REST API secured) Tj
+T* (with JWTs.) Tj
+T* ( ) Tj
+T* (2. Stakeholders & User Roles) Tj
+T* (- **Administrator**) Tj
+T* (- Authenticates via email/password.) Tj
+T* (- Creates tasks for employees, monitors workload distribution, and manages personal) Tj
+T* (profile settings.) Tj
+T* (- **Employee**) Tj
+T* (- Authenticates via email/password.) Tj
+T* (- Views assigned tasks, updates task status, and manages personal profile settings.) Tj
+T* (- **System Operator**) Tj
+T* (- Maintains infrastructure \(MongoDB, Node servers\) and provides environment secrets.) Tj
+T* ( ) Tj
+T* (3. Functional Requirements) Tj
+T* (3.1 Authentication) Tj
+T* (- Users must log in with a valid email/password combination stored in MongoDB.) Tj
+T* (- Successful authentication returns `{ user, token }`, where `token` is a JWT signed with) Tj
+T* (`JWT_SECRET`.) Tj
+T* (- Sessions persist client-side via `localStorage` \(`tms_auth`\). The frontend revalidates) Tj
+T* (the token on load via `/api/auth/me`.) Tj
+T* (- Users can log out, which clears the stored token and user data.) Tj
+T* ( ) Tj
+T* (3.2 Profile Settings) Tj
+T* (- Both roles can update display name, email, and password via the Profile Settings panel.) Tj
+T* (- Validation:) Tj
+T* (- Email uniqueness enforced server-side.) Tj
+T* (- Password is optional; only provided values are re-hashed with bcrypt before storage.) Tj
+T* (- After successful update, the backend returns the sanitized user object; the frontend) Tj
+T* (refreshes context/local storage.) Tj
+T* ( ) Tj
+T* (3.3 Administrator Module) Tj
+T* (- Create a task with title, optional description, due date, and employee assignment.) Tj
+T* (- View a live workload table showing per-employee counts \(`new`, `active`, `completed`,) Tj
+T* (`failed`\).) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+6 0 obj
+<< /Length 2272 >>
+stream
+BT
+/F1 11 Tf
+14 TL
+50 780 Td
+(- See the employee picker populated with names/emails sourced from) Tj
+T* (`/api/tasks/team/snapshot`.) Tj
+T* ( ) Tj
+T* (3.4 Employee Module) Tj
+T* (- View summary cards showing counts of tasks by status.) Tj
+T* (- Inspect task cards \(title, description, due date, status chip\).) Tj
+T* (- Change task state:) Tj
+T* (- `new ’ active` \(accept task\)) Tj
+T* (- `active ’ completed` or `active ’ failed`) Tj
+T* (- Receive inline feedback when tasks are loading or when no tasks exist.) Tj
+T* ( ) Tj
+T* (3.5 General UI) Tj
+T* (- Login page with a single glassmorphic card for credentials and inline error handling.) Tj
+T* (- Navigation header shows role, user name/email, and logout action in both dashboards.) Tj
+T* ( ) Tj
+T* (4. Non-Functional Requirements) Tj
+T* (- **Security**: JWT for stateless auth, bcrypt hashing, CORS restricted to) Tj
+T* (`CLIENT_ORIGIN`, no sensitive data stored in repo.) Tj
+T* (- **Performance**: Lightweight API calls; frontend caches auth in context. MongoDB) Tj
+T* (indexes default `_id` plus unique `email`.) Tj
+T* (- **Reliability**: Nodemon/dev servers auto-restart on changes; errors handled via) Tj
+T* (centralized middleware returning JSON.) Tj
+T* (- **Scalability**: Mongoose models ready for future extensions \(e.g., more task) Tj
+T* (metadata\). Task subdocuments stored inside User for simplicity; can be refactored later) Tj
+T* (into a separate collection if needed.) Tj
+T* ( ) Tj
+T* (5. System Architecture) Tj
+T* (| Layer | Technology | Responsibilities |) Tj
+T* (| --- | --- | --- |) Tj
+T* (| Client | React 19 + Vite + Tailwind CSS 4 | Routing \(single page\), context for) Tj
+T* (auth/data, dashboards, HTTP via Axios |) Tj
+T* (| API | Express 5 | Routing, validation, auth middleware, controllers |) Tj
+T* (| Data | MongoDB 7.x \(via Mongoose 9\) | Persist users and embedded tasks |) Tj
+T* ( ) Tj
+T* (Data Flow:) Tj
+T* (1. User submits credentials ’ `/api/auth/login`.) Tj
+T* (2. JWT stored in `localStorage`; Axios interceptor attaches it to future requests.) Tj
+T* (3. Dashboards fetch `/api/tasks` \(self\) or `/api/tasks/team/snapshot` \(admin\) and render) Tj
+T* (results.) Tj
+T* (4. Updates \(tasks, profile\) send authenticated POST/PATCH/PUT requests; backend responds) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 6 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+8 0 obj
+<< /Length 1827 >>
+stream
+BT
+/F1 11 Tf
+14 TL
+50 780 Td
+(with updated documents.) Tj
+T* ( ) Tj
+T* (6. Data Model) Tj
+T* (6.1 User) Tj
+T* (| Field | Type | Notes |) Tj
+T* (| --- | --- | --- |) Tj
+T* (| `_id` | ObjectId | Primary key |) Tj
+T* (| `name` | String | Optional display name \(defaults to email prefix\) |) Tj
+T* (| `email` | String | Unique, lowercase |) Tj
+T* (| `password` | String | Bcrypt hash |) Tj
+T* (| `role` | Enum\(`admin`, `employee`\) |) Tj
+T* (| `tasks` | Array\\<Task> | Embedded task documents |) Tj
+T* ( ) Tj
+T* (6.2 Task \(embedded\)) Tj
+T* (| Field | Type | Notes |) Tj
+T* (| --- | --- | --- |) Tj
+T* (| `_id` | ObjectId | Auto-generated per subdocument |) Tj
+T* (| `title` | String | Required |) Tj
+T* (| `description` | String | Optional |) Tj
+T* (| `status` | Enum\(`new`, `active`, `completed`, `failed`\) |) Tj
+T* (| `dueDate` | Date | Optional |) Tj
+T* (| `createdAt/updatedAt` | Date | Added via timestamps |) Tj
+T* ( ) Tj
+T* (7. API Specification) Tj
+T* ( ) Tj
+T* (7.1 Authentication Routes \(`/api/auth`\)) Tj
+T* (| Method & Path | Description | Auth | Payload | Response |) Tj
+T* (| --- | --- | --- | --- | --- |) Tj
+T* (| `POST /login` | Authenticate user | No | `{ email, password }` | `{ user:) Tj
+T* ({id,name,email,role}, token }` |) Tj
+T* (| `POST /register` | \(Reserved\) Create users | No* | `{ email, password, role?, name?,) Tj
+T* (tasks? }` | Same as login |) Tj
+T* (| `GET /me` | Fetch current profile | Bearer token |  | `{ user }` |) Tj
+T* (| `PUT /me` | Update profile | Bearer token | `{ name?, email?, password? }` | `{ user }`) Tj
+T* (|) Tj
+T* ( ) Tj
+T* (7.2 Task Routes \(`/api/tasks`\)) Tj
+T* (| Method & Path | Description | Auth | Payload | Response |) Tj
+T* (| --- | --- | --- | --- | --- |) Tj
+T* (| `GET /` | Fetch tasks | Bearer token | Optional `?userId=` for admins | `{ owner,) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 8 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+10 0 obj
+<< /Length 2187 >>
+stream
+BT
+/F1 11 Tf
+14 TL
+50 780 Td
+(tasks[] }` |) Tj
+T* (| `GET /team/snapshot` | Admin overview | Admin token |  | `{ team: [{ userId, name,) Tj
+T* (email, newTask, active, completed, failed }] }` |) Tj
+T* (| `POST /` | Create task | Admin token | `{ employeeId, title, description?, dueDate?,) Tj
+T* (status? }` | `{ message, task }` |) Tj
+T* (| `PATCH /:taskId` | Update task status | Bearer token | `{ status, employeeId? }` | `{) Tj
+T* (message, task }` |) Tj
+T* ( ) Tj
+T* (7.3 Health Route) Tj
+T* (- `GET /api/health` ’ `{ status: "ok", timestamp }`) Tj
+T* ( ) Tj
+T* (8. Frontend Module Breakdown) Tj
+T* (| Component | Responsibility |) Tj
+T* (| --- | --- |) Tj
+T* (| `AppContext` | Loads auth/token, exposes login/logout/task/team/profile actions |) Tj
+T* (| `Login` | Credential form with inline errors, spinner |) Tj
+T* (| `Nav` | Greeting, status badge, logout |) Tj
+T* (| `ProfileSettings` | Shared settings form for admin/employee dashboards |) Tj
+T* (| `AdminDashboard` | Renders `ProfileSettings`, task creation form, team table |) Tj
+T* (| `EmployeeDashboard` | Renders `ProfileSettings`, summary cards, interactive task cards) Tj
+T* (|) Tj
+T* (| `ActiveTask` | Handles status transitions with contextual buttons |) Tj
+T* (| `TaskCount`, `TaskInfo`, `Form` | Presentational widgets |) Tj
+T* ( ) Tj
+T* (9. Security Considerations) Tj
+T* (- **Password Hashing**: bcrypt with salt rounds \(10\).) Tj
+T* (- **JWT**: Signed with `JWT_SECRET`, 7-day expiry. Stored client-side; interceptor) Tj
+T* (injects into `Authorization: Bearer <token>`.) Tj
+T* (- **Authorization**: Middleware `protect` decodes tokens and loads user; `authorizeRoles`) Tj
+T* (restricts endpoints like task creation to admins.) Tj
+T* (- **CORS**: Locked to `CLIENT_ORIGIN` \(default `http://localhost:5173`\) with credentials) Tj
+T* (enabled.) Tj
+T* (- **Error Handling**: Centralized middleware returns descriptive messages and hides stack) Tj
+T* (traces in production.) Tj
+T* (- **Data Validation**: Server ensures required fields and rejects duplicate emails.) Tj
+T* (Frontend performs basic required-field checks.) Tj
+T* ( ) Tj
+T* (10. Environment & Deployment) Tj
+T* (Backend `.env`) Tj
+T* (```) Tj
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 10 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+12 0 obj
+<< /Length 1101 >>
+stream
+BT
+/F1 11 Tf
+14 TL
+50 780 Td
+(PORT=5000) Tj
+T* (MONGO_URI=mongodb://localhost:27017/tms) Tj
+T* (JWT_SECRET=<strong random string>) Tj
+T* (CLIENT_ORIGIN=http://localhost:5173) Tj
+T* (SEED_ADMIN_PASSWORD=123) Tj
+T* (```) Tj
+T* (Commands:) Tj
+T* (- Install: `cd backend && npm install`) Tj
+T* (- Run dev server: `npm run dev`) Tj
+T* (- Seed demo users/tasks: `node src/seed/seedUsers.js`) Tj
+T* ( ) Tj
+T* (Frontend `.env` \(optional\)) Tj
+T* (```) Tj
+T* (VITE_API_URL=http://localhost:5000/api) Tj
+T* (```) Tj
+T* (Commands:) Tj
+T* (- Install: `cd frontend && npm install`) Tj
+T* (- Run dev server: `npm run dev`) Tj
+T* ( ) Tj
+T* (11. Future Enhancements \(Backlog\)) Tj
+T* (- Task filtering/search for admins.) Tj
+T* (- Dedicated task collection for better querying at scale.) Tj
+T* (- Email verification and stronger password rules.) Tj
+T* (- Role-based dashboards for additional user types.) Tj
+T* ( ) Tj
+T* (---) Tj
+T* (This SRS summarizes the current state of the Task Management System and should be updated) Tj
+T* (as new features or architectural changes are introduced.) Tj
+T* ( ) Tj
+T* ( ) Tj
+ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 12 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+xref
+0 14
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000141 00000 n 
+0000000211 00000 n 
+0000002427 00000 n 
+0000002553 00000 n 
+0000004877 00000 n 
+0000005003 00000 n 
+0000006882 00000 n 
+0000007008 00000 n 
+0000009248 00000 n 
+0000009376 00000 n 
+0000010530 00000 n 
+trailer
+<< /Size 14 /Root 1 0 R >>
+startxref
+10658
+%%EOF
