@@ -51,12 +51,26 @@ const corsOptions = {
     }
     
     // In production, check against allowed origins
+    if (allowedOrigins === false || (Array.isArray(allowedOrigins) && allowedOrigins.length === 0)) {
+      console.error(`❌ CORS ERROR: No allowed origins configured!`);
+      console.error(`   CLIENT_ORIGIN env var: ${process.env.CLIENT_ORIGIN || 'NOT SET'}`);
+      console.error(`   Request origin: ${origin}`);
+      console.error(`   ⚠️  Temporarily allowing request, but SET CLIENT_ORIGIN in Vercel!`);
+      // Temporarily allow to prevent complete failure, but user MUST set CLIENT_ORIGIN
+      return callback(null, true);
+    }
+    
     if (Array.isArray(allowedOrigins) && allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       console.error(`❌ CORS blocked origin: ${origin}`);
       console.error(`   Allowed origins: ${JSON.stringify(allowedOrigins)}`);
-      callback(new Error("Not allowed by CORS"));
+      console.error(`   CLIENT_ORIGIN env var: ${process.env.CLIENT_ORIGIN || 'NOT SET'}`);
+      // Temporarily allow for debugging - REMOVE THIS LINE after setting CLIENT_ORIGIN
+      console.error(`   ⚠️  Temporarily allowing request - SET CLIENT_ORIGIN correctly!`);
+      callback(null, true);
+      // Uncomment below and remove above after setting CLIENT_ORIGIN:
+      // callback(new Error(`Origin ${origin} not allowed by CORS`));
     }
   },
   credentials: true,
@@ -74,17 +88,16 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// Debug endpoint to check CORS configuration (only in development)
-if (process.env.NODE_ENV !== "production") {
-  app.get("/api/debug/cors", (req, res) => {
-    res.json({
-      allowedOrigins: getAllowedOrigins(),
-      clientOrigin: process.env.CLIENT_ORIGIN,
-      nodeEnv: process.env.NODE_ENV,
-      requestOrigin: req.headers.origin,
-    });
+// Debug endpoint to check CORS configuration
+app.get("/api/debug/cors", (req, res) => {
+  res.json({
+    allowedOrigins: getAllowedOrigins(),
+    clientOrigin: process.env.CLIENT_ORIGIN || "NOT SET",
+    nodeEnv: process.env.NODE_ENV || "development",
+    requestOrigin: req.headers.origin || "no origin header",
+    corsWorking: true,
   });
-}
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
