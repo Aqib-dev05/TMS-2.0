@@ -8,12 +8,34 @@ import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 const app = express();
 
-const allowedOrigin = process.env.CLIENT_ORIGIN || "http://localhost:5173";
+// Support multiple origins for production
+const getAllowedOrigins = () => {
+  const origins = [];
+  
+  // Add CLIENT_ORIGIN if set
+  if (process.env.CLIENT_ORIGIN) {
+    origins.push(process.env.CLIENT_ORIGIN);
+  }
+  
+  // Add localhost for development
+  if (process.env.NODE_ENV !== "production") {
+    origins.push("http://localhost:5173", "http://localhost:3000");
+  }
+  
+  // Allow all origins in development, specific in production
+  if (process.env.NODE_ENV === "production") {
+    return origins.length > 0 ? origins : false;
+  }
+  
+  return origins.length > 0 ? origins : true;
+};
 
 app.use(
   cors({
-    origin: allowedOrigin,
+    origin: getAllowedOrigins(),
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 app.use(express.json());
