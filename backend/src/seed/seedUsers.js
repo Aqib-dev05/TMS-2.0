@@ -143,15 +143,25 @@ const rawUsers = [
 
 const seedUsers = async () => {
   try {
+    console.log("🌱 Starting seed process...");
+    console.log(`📡 Connecting to MongoDB...`);
+    
+    if (!process.env.MONGO_URI) {
+      throw new Error("MONGO_URI is not set in environment variables");
+    }
+
     await connectDB(process.env.MONGO_URI);
 
-    await User.deleteMany();
+    console.log(`🗑️  Clearing existing users...`);
+    const deleteResult = await User.deleteMany();
+    console.log(`   Deleted ${deleteResult.deletedCount} existing user(s)`);
 
     const password =
       process.env.SEED_ADMIN_PASSWORD ||
       process.env.DEFAULT_USER_PASSWORD ||
       "123";
 
+    console.log(`🔐 Hashing password...`);
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const defaultSecretKey = "secret123";
@@ -165,11 +175,28 @@ const seedUsers = async () => {
       tasks: sampleTasks[user.email] || [],
     }));
 
-    await User.insertMany(usersToInsert);
-    console.log("Seed data inserted successfully");
+    console.log(`📝 Inserting ${usersToInsert.length} user(s)...`);
+    const insertResult = await User.insertMany(usersToInsert);
+    
+    console.log(`✅ Seed data inserted successfully!`);
+    console.log(`   Total users created: ${insertResult.length}`);
+    console.log(`   Admin users: ${insertResult.filter(u => u.role === 'admin').length}`);
+    console.log(`   Employee users: ${insertResult.filter(u => u.role === 'employee').length}`);
+    
+    // Verify the data was actually inserted
+    const verifyCount = await User.countDocuments();
+    console.log(`   Verified users in database: ${verifyCount}`);
+    
+    if (verifyCount === insertResult.length) {
+      console.log(`✅ Verification successful! All users are in the database.`);
+    } else {
+      console.warn(`⚠️  Warning: Expected ${insertResult.length} users but found ${verifyCount}`);
+    }
+
     process.exit(0);
   } catch (error) {
-    console.error("Seed failed:", error.message);
+    console.error("❌ Seed failed:", error.message);
+    console.error("   Full error:", error);
     process.exit(1);
   }
 };
